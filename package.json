@@ -10,7 +10,7 @@
   "scripts": {
     "test": "scripts/test",
     "build": "scripts/build",
-    "postinstall": "scripts/build",
+    "postinstall": "scripts/postinstall",
     "prepublish": "scripts/prepublish"
   },
   "dependencies": {
