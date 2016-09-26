@@ -8,8 +8,11 @@ winston = require 'winston'
 
 walker = (app, resourceGroups) ->
 
-  sendResponse = (responses) ->
+  sendResponse = (responses, needsAuthorization) ->
     (req, res) ->
+      if needsAuthorization && !req.get('Authorization')
+        return res.send 401
+
       # default response
       response = responses[Object.keys(responses)[0]]
 
@@ -46,6 +49,7 @@ walker = (app, resourceGroups) ->
           # the routes are generated
           for example in action['examples']
             payload = exampleToHttpPayloadPair example, action['headers']
+            needsAuthorization = false
 
             for warning in payload['warnings']
               winston.warn("[#{path}] #{warning}")
@@ -53,9 +57,15 @@ walker = (app, resourceGroups) ->
             for error in payload['errors']
               winston.error("[#{path}] #{error}")
 
+            if 'requests' of example && example.requests.length > 0
+              for header in example.requests[0].headers
+                if header.name == 'Authorization'
+                  needsAuthorization = true
+
             responses.push {
               method: action.method
               path: path
+              needsAuthorization: needsAuthorization
               responses: payload['pair']['responses']
             }
 
@@ -70,15 +80,15 @@ walker = (app, resourceGroups) ->
   for response in responses
     switch response.method
       when 'GET'
-        app.get response.path, sendResponse(response.responses)
+        app.get response.path, sendResponse(response.responses, response.needsAuthorization)
       when 'POST'
-        app.post response.path, sendResponse(response.responses)
+        app.post response.path, sendResponse(response.responses, response.needsAuthorization)
       when 'PUT'
-        app.put response.path, sendResponse(response.responses)
+        app.put response.path, sendResponse(response.responses, response.needsAuthorization)
       when 'DELETE'
-        app.delete response.path, sendResponse(response.responses)
+        app.delete response.path, sendResponse(response.responses, response.needsAuthorization)
       when 'PATCH'
-        app.patch response.path, sendResponse(response.responses)
+        app.patch response.path, sendResponse(response.responses, response.needsAuthorization)
 
 
 
