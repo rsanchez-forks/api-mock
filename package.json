@@ -10,6 +10,7 @@
   "scripts": {
     "test": "scripts/test",
     "build": "scripts/build",
+    "postinstall": "scripts/build",
     "prepublish": "scripts/prepublish"
   },
   "dependencies": {
@@ -17,10 +18,10 @@
     "optimist": "~0.6.0",
     "express": "~3.4.7",
     "uri-template": "~1.0.0",
-    "winston": "~2.1.1"
+    "winston": "~2.1.1",
+    "coffee-script": "1.6.3"
   },
   "devDependencies": {
-    "coffee-script": "1.6.3",
     "coffee-errors": "~0.8.4",
     "mocha": "1.17.0",
     "chai": "~1.9.0",
